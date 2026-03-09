@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model citas {
+  id           Int           @id @default(autoincrement())
+  fecha        DateTime      @db.DateTime(0)
+  motivo       String?       @db.VarChar(200)
+  estado       citas_estado? @default(pendiente)
+  mascota_id   Int
+  created_at   DateTime?     @default(now()) @db.Timestamp(0)
+  mascotas     mascotas      @relation(fields: [mascota_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_cita_mascota")
+  diagnosticos diagnosticos?
+
+  @@index([mascota_id], map: "fk_cita_mascota")
+}
+
+model clientes {
+  id         Int        @id @default(autoincrement())
+  nombre     String     @db.VarChar(100)
+  telefono   String    @db.VarChar(20)
+  email      String?    @db.VarChar(100)
+  direccion  String    @db.VarChar(150)
+  created_at DateTime?  @default(now()) @db.Timestamp(0)
+  mascotas   mascotas[]
+}
+
+model diagnosticos {
+  id            Int       @id @default(autoincrement())
+  descripcion   String    @db.Text
+  tratamiento   String?   @db.Text
+  medicamentos  String?   @db.Text
+  observaciones String?   @db.Text
+  cita_id       Int?      @unique(map: "cita_id")
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  citas         citas?    @relation(fields: [cita_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_diagnostico_cita")
+}
+
+model mascotas {
+  id         Int       @id @default(autoincrement())
+  nombre     String    @db.VarChar(100)
+  especie    String    @db.VarChar(50)
+  raza       String?   @db.VarChar(50)
+  edad       Int
+  peso       Decimal  @db.Decimal(5, 2)
+  cliente_id Int
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  citas      citas[]
+  clientes   clientes  @relation(fields: [cliente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_mascota_cliente")
+
+  @@index([cliente_id], map: "fk_mascota_cliente")
+}
+
+model usuario {
+  id       Int    @id @default(autoincrement())
+  usuario  String @unique(map: "usuario") @db.VarChar(50)
+  password String @db.VarChar(255)
+}
+
+enum citas_estado {
+  pendiente
+  atendida
+  cancelada
+}
