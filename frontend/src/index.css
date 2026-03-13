@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@theme {
+  /* R:37 G:179 B:103 */
+  --color-verde-vet: rgb(37, 179, 103);
+  
+  /* R:34 G:45 B:98 */
+  --color-azul-vet: rgb(34, 45, 98);
+}
