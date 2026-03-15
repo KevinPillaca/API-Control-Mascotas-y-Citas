@@ -1,4 +1,4 @@
-import clienteAxios from '../api/clienteAxios';
+import clienteAxios from '../api/axiosConfig';
 import type { LoginRequest, AuthResponse } from '../interfaces/auth.interfaces';
 
 export const loginUser = async (datos: LoginRequest): Promise<AuthResponse> => {
