@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Search, UserPlus } from "lucide-react";
-import { clienteService } from "../../services/clientes.service"; // 2. Importamos tu servicio
+import { Search, UserPlus } from "lucide-react"; // search aun no implimentado
+import { clienteService } from "../../services/clientes.service";
 import type { Cliente } from "../../interfaces/clientes";
 import TableActions from "../../components/TableActions";
 import ClienteModal from "../../components/modals/ClienteModal";
-import Swal from "sweetalert2";
+import { usePagination } from "../../hooks/usePagination";
+import { alertService } from "../../utils/alerts";
 
 const Clientes = () => {
   // Estados de datos y control de interfaz
@@ -40,30 +41,19 @@ const Clientes = () => {
 
   // DELETE: Elimina un registro físicamente en la base de datos
   const handleDelete = async (id: number) => {
-    const result = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: "¡No podrás revertir esto!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#10b981",
-      cancelButtonColor: "#ef4444",
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
-    });
+    // Llamamos a la plantilla de confirmación
+    const result = await alertService.confirmDelete("este cliente");
 
     if (result.isConfirmed) {
       try {
         await clienteService.delete(id);
-        Swal.fire({
-          title: "¡Eliminado!",
-          text: "El cliente ha sido borrado.",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-        obtenerClientes(); // Refresca la tabla (READ)
+
+        // Llamamos a la plantilla de éxito
+        alertService.success("El cliente ha sido borrado correctamente.");
+
+        obtenerClientes();
       } catch (error) {
-        Swal.fire("Error", "No se pudo eliminar el cliente", "error");
+        alertService.error("No se pudo eliminar el cliente.");
       }
     }
   };
@@ -75,16 +65,13 @@ const Clientes = () => {
   };
 
   // Configuración de Paginación
-  const [paginaActual, setPaginaActual] = useState(1);
-  const registrosPorPagina = 7;
-
-  // Lógica para recortar la lista según la página actual
-  const ultimoIndice = paginaActual * registrosPorPagina;
-  const primerIndice = ultimoIndice - registrosPorPagina;
-  const clientesPaginados = clientes.slice(primerIndice, ultimoIndice);
-
-  // Cálculo de páginas totales
-  const totalPaginas = Math.ceil(clientes.length / registrosPorPagina);
+  const {
+    itemsPaginados: clientesPaginados,
+    paginaActual,
+    totalPaginas,
+    irSiguiente,
+    irAnterior,
+  } = usePagination(clientes, 7);
 
   return (
     <div className="p-8">
@@ -192,16 +179,14 @@ const Clientes = () => {
 
             <div className="flex gap-2">
               <button
-                onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+                onClick={irAnterior}
                 disabled={paginaActual === 1}
                 className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 Anterior
               </button>
               <button
-                onClick={() =>
-                  setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))
-                }
+                onClick={irSiguiente}
                 disabled={paginaActual === totalPaginas || totalPaginas === 0}
                 className="px-4 py-2 rounded-xl bg-azul-vet text-white font-bold hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-md"
               >

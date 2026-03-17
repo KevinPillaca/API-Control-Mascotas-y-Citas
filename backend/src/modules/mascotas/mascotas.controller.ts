@@ -23,7 +23,7 @@ export class MascotasController {
       });
     }
   };
-
+  
   // GET(LISTAR MASCOTAS)
   public list = async (_req: Request, res: Response) => {
     try {

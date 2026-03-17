@@ -2,13 +2,14 @@ import { useState, useEffect } from "react"; // 1. Añadimos useEffect
 import { X, Save } from "lucide-react";
 import { clienteService } from "../../services/clientes.service";
 import type { Cliente } from "../../interfaces/clientes"; // Importamos el tipo
-import Swal from "sweetalert2";
+import { alertService } from "../../utils/alerts";
+import { useClienteStore } from "../../store/useCliente";
 
 // Definición de las propiedades que recibe el Modal desde el componente Padre
 interface ClienteModalProps {
-  isOpen: boolean;        // Controla si el modal se muestra o se oculta
-  onClose: () => void;    // Función para cerrar el modal
-  onRefresh: () => void;  // Función para recargar la tabla después de un cambio
+  isOpen: boolean; // Controla si el modal se muestra o se oculta
+  onClose: () => void; // Función para cerrar el modal
+  onRefresh: () => void; // Función para recargar la tabla después de un cambio
   clienteEdit?: Cliente | null; // Datos del cliente si estamos en modo edición
 }
 
@@ -18,6 +19,9 @@ const ClienteModal = ({
   onRefresh,
   clienteEdit,
 }: ClienteModalProps) => {
+  // --- CAMBIO AQUÍ: Traemos updateClienteInStore del store ---
+  const { addClienteToStore, updateClienteInStore } = useClienteStore();
+
   // Estado local para controlar los valores de los campos del formulario
   const [formData, setFormData] = useState({
     nombre: "",
@@ -53,31 +57,39 @@ const ClienteModal = ({
     e.preventDefault();
     try {
       if (clienteEdit && clienteEdit.id) {
-        // PUT: Actualizar registro existente
-        await clienteService.update(clienteEdit.id, formData as any);
-        Swal.fire({
-          icon: "success",
-          title: "¡Actualizado!",
-          text: "Se actualizó correctamente.",
-          timer: 1500,
-          showConfirmButton: false,
-        });
+        // 1. Actualizamos en la base de datos
+        // Capturamos el cliente actualizado ---
+        const actualizado = await clienteService.update(
+          clienteEdit.id,
+          formData as any,
+        );
+
+        // 2. Sincronizamos la "pizarra" global (Store) con los nuevos datos
+        // Usamos la función específica del store ---
+        updateClienteInStore(actualizado);
+
+        alertService.success(
+          "Se actualizó cliente correctamente.",
+          "¡Actualizado!",
+        );
       } else {
-        // POST: Crear nuevo registro
-        await clienteService.create(formData as any);
-        Swal.fire({
-          icon: "success",
-          title: "¡Guardado!",
-          text: "Se registró correctamente.",
-          timer: 1500,
-          showConfirmButton: false,
-        });
+        // 1. Guardamos y CAPTURAMOS lo que nos responde el servidor
+        const nuevoCliente = await clienteService.create(formData as any);
+
+        // 2. Pasamos ese nuevo cliente al Store para que Mascotas lo vea
+        addClienteToStore(nuevoCliente);
+
+        alertService.success(
+          "Se registró cliente correctamente.",
+          "¡Guardado!",
+        );
       }
 
-      onRefresh(); // Recarga la lista en el componente padre
-      onClose(); // Cierra el modal
+      onRefresh(); // Tu función original para la tabla local
+      onClose(); // Tu función original para cerrar
     } catch (error) {
-      Swal.fire("Error", "No se pudo procesar la solicitud", "error");
+      console.error("Error en el submit:", error);
+      alertService.error("No se pudo procesar la solicitud");
     }
   };
 

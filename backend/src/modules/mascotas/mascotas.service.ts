@@ -6,17 +6,15 @@ export class MascotasService {
 
 // CONECTAR BD (CREAR MASCOTAS)
   public createMascota = async (data: CreateMascotaDTO) => {
-    return await prisma.mascotas.create({
-      data: {
-        nombre: data.nombre,
-        especie: data.especie,
-        raza: data.raza,
-        edad: data.edad,
-        peso: data.peso,
-        cliente_id: data.cliente_id,
-      },
-    });
-  };
+  return await prisma.mascotas.create({
+    data: {
+      ...data,
+      edad: Number(data.edad),       
+      peso: Number(data.peso),       
+      cliente_id: Number(data.cliente_id) 
+    }
+  });
+}
 
 // CONECTAR BD (LISTAR MASCOTAS)
   public getAllMascotas = async () => {
