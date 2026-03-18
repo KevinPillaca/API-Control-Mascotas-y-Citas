@@ -21,7 +21,7 @@ export const alertService = {
       title: titulo,
       text: mensaje,
       icon: "success",
-      timer: 1500,
+      timer: 1900,
       showConfirmButton: false,
     });
   },
