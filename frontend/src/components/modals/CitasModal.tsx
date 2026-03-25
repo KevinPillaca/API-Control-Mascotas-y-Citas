@@ -12,7 +12,13 @@ interface Props {
   citaAEditar?: Cita;
 }
 
-const CitasModal = ({ isOpen, onClose, mascotas, onSave, citaAEditar }: Props) => {
+const CitasModal = ({
+  isOpen,
+  onClose,
+  mascotas,
+  onSave,
+  citaAEditar,
+}: Props) => {
   const [formData, setFormData] = useState<CreateCitaInput>({
     fecha: "",
     motivo: "",
@@ -25,7 +31,9 @@ const CitasModal = ({ isOpen, onClose, mascotas, onSave, citaAEditar }: Props) =
     if (isOpen) {
       if (citaAEditar) {
         // Si estamos editando, formateamos la fecha de la BD para el input y llenamos el estado
-        const fechaFormateada = new Date(citaAEditar.fecha).toISOString().slice(0, 16);
+        const fechaFormateada = new Date(citaAEditar.fecha)
+          .toISOString()
+          .slice(0, 16);
         setFormData({
           fecha: fechaFormateada,
           motivo: citaAEditar.motivo,
@@ -59,7 +67,6 @@ const CitasModal = ({ isOpen, onClose, mascotas, onSave, citaAEditar }: Props) =
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <section className="bg-white w-full max-w-lg rounded-[30px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-        
         <header className="bg-azul-vet p-6 text-white flex justify-between items-center">
           <div className="flex items-center gap-3">
             <Calendar size={24} />
@@ -67,7 +74,10 @@ const CitasModal = ({ isOpen, onClose, mascotas, onSave, citaAEditar }: Props) =
               {citaAEditar ? "Editar Cita" : "Programar Cita"}
             </h2>
           </div>
-          <button onClick={onClose} className="hover:bg-white/20 p-2 rounded-full transition-colors">
+          <button
+            onClick={onClose}
+            className="hover:bg-white/20 p-2 rounded-full transition-colors"
+          >
             <X size={20} />
           </button>
         </header>
@@ -81,7 +91,9 @@ const CitasModal = ({ isOpen, onClose, mascotas, onSave, citaAEditar }: Props) =
               required
               className="w-full p-4 rounded-2xl border border-slate-200 outline-none bg-slate-50 focus:border-azul-vet transition-all cursor-pointer"
               value={formData.mascota_id}
-              onChange={(e) => setFormData({ ...formData, mascota_id: Number(e.target.value) })}
+              onChange={(e) =>
+                setFormData({ ...formData, mascota_id: Number(e.target.value) })
+              }
             >
               <option value="">¿Quién viene a consulta?</option>
               {mascotas.map((m) => (
@@ -101,7 +113,9 @@ const CitasModal = ({ isOpen, onClose, mascotas, onSave, citaAEditar }: Props) =
               type="datetime-local"
               className="w-full p-4 rounded-2xl border border-slate-200 outline-none focus:border-azul-vet transition-all"
               value={formData.fecha as string}
-              onChange={(e) => setFormData({ ...formData, fecha: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, fecha: e.target.value })
+              }
             />
           </fieldset>
 
@@ -113,7 +127,9 @@ const CitasModal = ({ isOpen, onClose, mascotas, onSave, citaAEditar }: Props) =
               <select
                 className="w-full p-4 rounded-2xl border border-slate-200 outline-none bg-slate-50 focus:border-azul-vet transition-all cursor-pointer"
                 value={formData.estado}
-                onChange={(e) => setFormData({ ...formData, estado: e.target.value as any })}
+                onChange={(e) =>
+                  setFormData({ ...formData, estado: e.target.value as any })
+                }
               >
                 <option value="pendiente">Pendiente</option>
                 <option value="atendida">Atendida</option>
@@ -132,15 +148,24 @@ const CitasModal = ({ isOpen, onClose, mascotas, onSave, citaAEditar }: Props) =
               rows={3}
               className="w-full p-4 rounded-2xl border border-slate-200 outline-none resize-none focus:border-azul-vet transition-all"
               value={formData.motivo}
-              onChange={(e) => setFormData({ ...formData, motivo: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, motivo: e.target.value })
+              }
             />
           </fieldset>
 
           <footer className="flex gap-3 pt-4">
-            <button type="button" onClick={onClose} className="flex-1 py-4 text-slate-500 font-bold hover:bg-slate-100 rounded-2xl transition-colors">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-4 text-slate-500 font-bold hover:bg-slate-100 rounded-2xl transition-colors"
+            >
               Cancelar
             </button>
-            <button type="submit" className="flex-1 py-4 rounded-2xl font-bold bg-verde-vet text-white shadow-lg hover:brightness-110 active:scale-95 transition-all">
+            <button
+              type="submit"
+              className="flex-1 py-4 rounded-2xl font-bold bg-verde-vet text-white shadow-lg hover:brightness-110 active:scale-95 transition-all"
+            >
               {citaAEditar ? "Actualizar Cita" : "Guardar Cita"}
             </button>
           </footer>

@@ -1,5 +1,6 @@
 import { Edit, Trash2 } from 'lucide-react';
 
+
 interface TableActionsProps {
   onEdit: () => void;
   onDelete: () => void;

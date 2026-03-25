@@ -19,24 +19,23 @@ export class DiagnosticosService {
 
 // CONECTAR BD (LISTAR DIAGNOSTICOS)
  public getAllDiagnosticos = async () => {
-    return await prisma.diagnosticos.findMany({
-      include: {
-        citas: {
-          include: {
-            mascotas: {
-              select: {
-                nombre: true,
-                especie: true
-              }
+  return await prisma.diagnosticos.findMany({
+    include: {
+      citas: {
+        include: {
+          mascotas: {
+            include: {
+              clientes: true // <-- ESTO TRAE AL DUEÑO
             }
           }
         }
-      },
-      orderBy: {
-        created_at: 'desc'
       }
-    });
-  };
+    },
+    orderBy: {
+      created_at: 'desc'
+    }
+  });
+};
 
  public getDiagnosticoByCita = async (citaId: number) => {
     return await prisma.diagnosticos.findUnique({
@@ -52,10 +51,21 @@ export class DiagnosticosService {
   return await prisma.diagnosticos.update({
     where: { id },
     data: {
-      ...data // Esparcimos los datos del DTO
+      ...data // Esparcimos los datos del DTO (descripcion, tratamiento, etc.)
     },
+    include: { // <--- ESTO ES LO QUE AGREGAMOS
+      citas: {
+        include: {
+          mascotas: {
+            include: {
+              clientes: true // Traemos al dueño para no perderlo en la UI
+            }
+          }
+        }
+      }
+    }
   });
- };
+};
 
 // CONECTAR BD (ELIMINAR DIAGNOSTICOS)
  public deleteDiagnostico = async (id: number) => {
